@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        #chat {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 1024px;
+            margin: auto;
+            height: 720px;
+            transform: translate(-50%, -50%);
+            border-radius: 4px;
+            box-shadow: 1px 1px 5px #999999, -2px -2px 5px #cccccc;
+            display: flex;
+            box-sizing: border-box;
+        }
+        .left {
+            width: 240px;
+            height: 100%;
+            border-radius: 6px 0 0 6px;
+            background-color: rgb(234, 234, 234);
+        }
+        .right {
+            flex: 1;
+            display: flex;
+            border-radius: 0 6px 6px 0;
+            flex-direction: column;
+        }
+        .chat-area {
+            flex: 3;
+            border-radius: 0 6px 0 0;
+            background-color: rgb(248, 248, 248);
+        }
+        .edit-area {
+            position: relative;
+            flex: 1;
+            padding: 20px;
+            border-radius: 0 0 6px 0;
+            border-top: 1px solid rgb(234, 234, 234);
+            background-color: rgb(248, 248, 248);
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+        }
+        textarea {
+            flex: 1;
+            font-size: 16px;
+            padding: 20px;
+            padding-bottom: 40px; 
+            box-sizing: border-box;
+            outline: none;
+            border: none;
+        }
+        button {
+            position: absolute;
+            padding: 6px 20px;
+            border-radius: 2px;
+            right: 10px;
+            bottom: 10px;
+            border-style: none;
+            border: 1px solid rgb(234, 234, 234);
+            background-color: rgb(248, 248, 248);
+            cursor: pointer;
+            outline: none;
+            box-sizing: border-box;
+        }
+        button:hover {
+            color: #FFFFFF;
+            background-color: rgb(18, 150, 17);
+        }
+        ul {
+            list-style: none;
+            margin: 0;
+            padding: 40px;
+            box-sizing: border-box;
+        }
+        li {
+            display: flex;
+            align-items: center;
+            margin-top: 0px;
+            padding: 5px 0;
+            box-sizing: border-box;
+        }
+        .flex-left {
+            justify-content: flex-start;
+            margin-right: 10px;
+        }
+        .flex-right {
+            justify-content: flex-end;
+            margin-left: 10px;
+            order: 1;
+        }
+        .username {
+            height: 36px;
+            width: 36px;
+            line-height: 36px;
+        }
+        .usermsg {
+            display: block;
+            padding: 4px 15px;;
+            border-radius: 4px;
+            border: 1px solid rgb(234, 234, 234);
+            background-color: #ffffff;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <div class="containerr">
+        <div id="regist">
+
+        </div>
+        <div id="chat">
+            <div class="left"></div>
+            <div class="right">
+                <div class="chat-area">
+                    <ul id="chat-content">
+                    </ul>
+                </div>
+                <div class="edit-area">
+                    <textarea rows="10" cols="30" id="edit-content"></textarea>
+                    <button id="send">发送</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.bootcss.com/socket.io/2.0.4/socket.io.js"></script>
+    <script>
+        let content = $('#chat-content');
+        let li = '';
+        let isSelf = true;
+        let socket = io('http://192.168.0.92:8013');
+        function addMessage(val) {
+            isSelf = !isSelf;
+            if (isSelf) {
+                li = '<li class="flex-left"><span class="flex-left">'+val.username  +'</span><span class="usermsg">'+ val.msg +'</span>' 
+            }else {
+                li = '<li class="flex-right"><span class="flex-right">'+val.username  +'</span><span class="usermsg">'+ val.msg +'</span>' 
+            }
+            content.append(li);
+        }
+        $('#send').on('click', function(){
+            var val = $('#edit-content').val();
+            if (val === '') {
+                $('#edit-content').focus();
+                return;
+            }
+            socket.emit('new message', val);
+            $('#edit-content').val('');
+            $('#edit-content').focus();
+        })
+        
+        socket.on('connect', function(sk){
+            console.log('connect...');
+            
+        })
+        socket.on('user join', function(msg){
+            console.log(msg)
+            alert(msg.msg)
+        })
+        socket.on('new message', function(msg){
+            console.log(msg)
+            addMessage(msg)
+        })
+        socket.on('reconnect',  function() {
+            console.log('reconnect....');
+        })
+        socket.on('connect_error',function() {
+            console.log('connect_error...');
+        })
+        socket.on('disconnect', function() {
+            console.log('disconnect....')
+        })
+        socket.emit('user add', {username: 'wo', msg: 'wo jinlai liao'})
+    </script>
+</body>
+</html>
