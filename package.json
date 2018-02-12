@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "server": "node dist/app.js",
-    "build-ts": "tsc"
+    "dev": "node app.js"
   },
   "author": "",
   "license": "ISC",
@@ -17,6 +16,8 @@
     "socket.io": "^2.0.4"
   },
   "devDependencies": {
-    "@types/node": "^9.3.0"
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "jest": "^22.2.2"
   }
 }

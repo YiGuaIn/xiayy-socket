@@ -32,9 +32,11 @@
             flex-direction: column;
         }
         .chat-area {
+            position: relative;
             flex: 3;
             border-radius: 0 6px 0 0;
             background-color: rgb(248, 248, 248);
+            overflow: hidden;
         }
         .edit-area {
             position: relative;
@@ -108,6 +110,14 @@
             background-color: #ffffff;
             box-sizing: border-box;
         }
+        #chat-content {
+            position: absolute;
+            width: 100%;
+            right: -16px;
+            padding-left: 20px;
+            max-height: 520px;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body>
@@ -123,7 +133,7 @@
                     </ul>
                 </div>
                 <div class="edit-area">
-                    <textarea rows="10" cols="30" id="edit-content"></textarea>
+                    <textarea rows="10" cols="30" id="edit-content" onKeyUp= "onKeyUp(event)"></textarea>
                     <button id="send">发送</button>
                 </div>
             </div>
@@ -145,17 +155,27 @@
             }
             content.append(li);
         }
-        $('#send').on('click', function(){
-            var val = $('#edit-content').val();
+        function sendMessage() {
+            var val = $('#edit-content').val().replace(/[\r\n]/g, '');
             if (val === '') {
+                $('#edit-content').val('')
                 $('#edit-content').focus();
                 return;
             }
             socket.emit('new message', val);
             $('#edit-content').val('');
             $('#edit-content').focus();
+        }
+        $('#send').on('click', function(){
+            sendMessage()
         })
         
+        function onKeyUp(event) {
+            if (event.keyCode === 13) {
+                sendMessage()
+            }
+        }
+
         socket.on('connect', function(sk){
             console.log('connect...');
             
@@ -165,7 +185,7 @@
             alert(msg.msg)
         })
         socket.on('new message', function(msg){
-            console.log(msg)
+            console.log('message:', msg)
             addMessage(msg)
         })
         socket.on('reconnect',  function() {
